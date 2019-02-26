@@ -167,6 +167,7 @@ class SaltCacheLoader(BaseLoader):
                 'tplfile': tplfile,
                 'tpldir': '.' if tpldir == '' else tpldir,
                 'tpldot': tpldir.replace('/', '.'),
+                'tplroot': tpldir.split('/')[0],
             }
             environment.globals.update(tpldata)
 
