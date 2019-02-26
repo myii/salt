@@ -6469,7 +6469,7 @@ def normpath(path):
 
     .. code-block:: jinja
 
-        {%- from salt['file.normpath'](tpldir + '/../vars.jinja') import parent_vars %}
+        {%- from salt['file.normpath'](tpldir ~ '/../vars.jinja') import parent_vars %}
 
     CLI Example:
 
@@ -6511,7 +6511,7 @@ def dirname(path):
 
     .. code-block:: jinja
 
-        {%- from salt['file.dirname'](tpldir) + '/vars.jinja' import parent_vars %}
+        {%- from salt['file.dirname'](tpldir) ~ '/vars.jinja' import parent_vars %}
 
     CLI Example:
 
