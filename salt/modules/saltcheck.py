@@ -413,6 +413,7 @@ def _generate_out_list(results):
     out_list.append({'TEST RESULTS': {'Execution Time': round(total_time, 4),
                                       'Passed': passed, 'Failed': failed, 'Skipped': skipped,
                                       'Missing Tests': missing_tests}})
+    __context__['retcode'] = (1 if (failed + skipped + missing_tests) else 0)
     return out_list
 
 
