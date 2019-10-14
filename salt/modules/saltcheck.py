@@ -316,7 +316,7 @@ def state_apply(state_name, **kwargs):
     if 'running_data/var/run/salt-minion.pid' in __opts__.get('pidfile', False):
         # Force salt-ssh minions to use local
         local_opts['file_client'] = 'local'
-        log.debug('Detected salt-ssh, running as local')
+        print('Detected salt-ssh, running as local')
     caller = salt.client.Caller(mopts=local_opts)
     if kwargs:
         return caller.cmd('state.apply', state_name, **kwargs)
@@ -398,7 +398,7 @@ def _generate_out_list(results):
             missing_tests = missing_tests + 1
         else:
             for dummy, val in results[state].items():
-                log.info("dummy=%s, val=%s", dummy, val)
+                print("dummy=%s, val=%s", dummy, val)
                 if val['status'].startswith('Pass'):
                     passed = passed + 1
                 if val['status'].startswith('Fail'):
@@ -425,7 +425,7 @@ def _render_file(file_path):
     '''
     # salt-call slsutil.renderer /srv/salt/jinjatest/saltcheck-tests/test1.tst
     rendered = __salt__['slsutil.renderer'](file_path)
-    log.info("rendered: %s", rendered)
+    print("rendered: %s", rendered)
     return rendered
 
 
@@ -456,7 +456,7 @@ def _get_top_states(saltenv='base'):
     '''
     top_states = []
     top_states = __salt__['state.show_top']()[saltenv]
-    log.debug('saltcheck for saltenv: %s found top states: %s', saltenv, top_states)
+    print('saltcheck for saltenv: %s found top states: %s', saltenv, top_states)
     return top_states
 
 
@@ -502,7 +502,7 @@ class SaltCheck(object):
         assertion = test_dict.get('assertion', None)
         exp_ret_key = 'expected-return' in test_dict.keys()
         exp_ret_val = test_dict.get('expected-return', None)
-        log.info("__is_valid_test has test: %s", test_dict)
+        print("__is_valid_test has test: %s", test_dict)
         if skip:
             required_total = 0
         elif m_and_f in ["saltcheck.state_apply"]:
@@ -526,9 +526,9 @@ class SaltCheck(object):
                 tots += 1
             else:
                 test_errors.append('{0} is not a valid function'.format(function))
-            log.info("__is_valid_test has valid m_and_f")
+            print("__is_valid_test has valid m_and_f")
         if assertion in self.assertions_list:
-            log.info("__is_valid_test has valid_assertion")
+            print("__is_valid_test has valid_assertion")
             tots += 1
         else:
             test_errors.append('{0} is not in the assertions list'.format(assertion))
@@ -544,9 +544,9 @@ class SaltCheck(object):
             test_errors.append('expected-return does not have a value')
 
         # log the test score for debug purposes
-        log.info("__test score: %s and required: %s", tots, required_total)
+        print("__test score: %s and required: %s", tots, required_total)
         if not tots >= required_total:
-            log.error('Test failed with the following test verifications: %s', ', '.join(test_errors))
+            print('Test failed with the following test verifications: %s', ', '.join(test_errors))
         return tots >= required_total
 
     def _call_salt_command(self,
@@ -667,11 +667,11 @@ class SaltCheck(object):
             try:
                 new_expected = ret_type(expected)
             except ValueError:
-                log.info("Unable to cast expected into type of returned")
-                log.info("returned = %s", returned)
-                log.info("type of returned = %s", type(returned))
-                log.info("expected = %s", expected)
-                log.info("type of expected = %s", type(expected))
+                print("Unable to cast expected into type of returned")
+                print("returned = %s", returned)
+                print("type of returned = %s", type(returned))
+                print("expected = %s", expected)
+                print("type of expected = %s", type(expected))
         return new_expected
 
     @staticmethod
@@ -878,7 +878,7 @@ class StateTestLoader(object):
         salt_ssh = False
         if 'running_data/var/run/salt-minion.pid' in __opts__.get('pidfile', False):
             salt_ssh = True
-            log.debug('Running on salt-ssh minion. Reading file %s', sls_name)
+            print('Running on salt-ssh minion. Reading file %s', sls_name)
             cp_output_file = os.path.join(__opts__['cachedir'], 'files', self.saltenv, 'cp_output.txt')
             with salt.utils.files.fopen(cp_output_file, 'r') as fp:
                 all_states = salt.utils.json.loads(salt.utils.stringutils.to_unicode(fp.read()))
@@ -890,7 +890,7 @@ class StateTestLoader(object):
         cached_copied_files = []
         if salt_ssh:
             # populate cached_copied_files from sent over file rather than attempting to run cp.cache_dir later
-            log.debug('Running on salt-ssh minion. Populating test file results')
+            print('Running on salt-ssh minion. Populating test file results')
             state_copy_file = os.path.join(__opts__['cachedir'], 'files', self.saltenv, sls_name + '.copy')
             try:
                 with salt.utils.files.fopen(state_copy_file, 'r') as fp:
@@ -905,7 +905,7 @@ class StateTestLoader(object):
 
         if sls_name in all_states:
             if salt_ssh:
-                log.debug('Running on salt-ssh minion. Reading file %s', sls_name + '.low')
+                print('Running on salt-ssh minion. Reading file %s', sls_name + '.low')
                 state_low_file = os.path.join(__opts__['cachedir'], 'files', self.saltenv, sls_name + '.low')
                 with salt.utils.files.fopen(state_low_file, 'r') as fp:
                     ret = salt.utils.json.loads(salt.utils.stringutils.to_unicode(fp.read()))
@@ -918,7 +918,7 @@ class StateTestLoader(object):
         for low_data in ret:
             copy_states = True
             if not isinstance(low_data, dict):
-                log.error('low data from show_low_sls is not formed as a dict: %s', low_data)
+                print('low data from show_low_sls is not formed as a dict: %s', low_data)
                 return
             this_cache_ret = None
             if '__sls__' in low_data:
@@ -943,7 +943,7 @@ class StateTestLoader(object):
                 # process /patch/to/formula/saltcheck_test_location
                 sls_path = 'salt://{0}/{1}'.format(state_name.replace('.', '/'), self.saltcheck_test_location)
                 if copy_states:
-                    log.debug('looking in %s to cache tests', sls_path)
+                    print('looking in %s to cache tests', sls_path)
                     this_cache_ret = __salt__['cp.cache_dir'](sls_path,
                                                               saltenv=self.saltenv,
                                                               include_pat='*.tst')
@@ -960,7 +960,7 @@ class StateTestLoader(object):
                         copy_states = False
                     sls_path = 'salt://{0}/{1}'.format('/'.join(sls_split), self.saltcheck_test_location)
                     if copy_states:
-                        log.debug('looking in %s to cache tests', sls_path)
+                        print('looking in %s to cache tests', sls_path)
                         this_cache_ret = __salt__['cp.cache_dir'](sls_path,
                                                                   saltenv=self.saltenv,
                                                                   include_pat='*.tst')
@@ -974,7 +974,7 @@ class StateTestLoader(object):
                             copy_states = False
                         sls_path = 'salt://{0}/{1}'.format(state_name, self.saltcheck_test_location)
                         if copy_states:
-                            log.debug('looking in %s to cache tests', sls_path)
+                            print('looking in %s to cache tests', sls_path)
                             this_cache_ret = __salt__['cp.cache_dir'](sls_path,
                                                                     saltenv=self.saltenv,
                                                                     include_pat='*.tst')
@@ -1010,4 +1010,4 @@ class StateTestLoader(object):
                         if this_cached_test_file.endswith(sls_path_name):
                             self.test_files.add(this_cached_test_file)
                             cached_copied_files.remove(this_cached_test_file)
-                            log.debug('Adding .tst file: %s', this_cached_test_file)
+                            print('Adding .tst file: %s', this_cached_test_file)
