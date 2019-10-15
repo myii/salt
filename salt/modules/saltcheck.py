@@ -415,7 +415,8 @@ def _generate_out_list(results):
                                       'Missing Tests': missing_tests}})
     # Set exist code to 1 if failed tests
     # Use-cases for exist code handling of missing or skipped?
-    __context__['retcode'] = (1 if failed else 0)
+    # For now, returning an error for failed, skipped or missing tests
+    __context__['retcode'] = (1 if (failed + skipped + missing_tests) else 0)
     return out_list
 
 
