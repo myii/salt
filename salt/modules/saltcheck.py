@@ -426,6 +426,7 @@ def _render_file(file_path):
     # salt-call slsutil.renderer /srv/salt/jinjatest/saltcheck-tests/test1.tst
     rendered = __salt__['slsutil.renderer'](file_path)
     print("rendered: %s", rendered)
+    # print(dumps(rendered, indent=4))
     return rendered
 
 
@@ -649,8 +650,16 @@ class SaltCheck(object):
             value = "Fail - invalid test"
         end = time.time()
         result = {}
-        result['status'] = value
+        result['A. mod_and_func'] = mod_and_func
+        result['B. args'] = args
+        result['C. assertion'] = assertion
+        if assertion_section is not None:
+            result['D. assertion_section'] = assertion_section
+        if expected_return is not None:
+            result['E. expected'] = expected_return
+        result['F. outcome'] = actual_return
         result['duration'] = round(end - start, 4)
+        result['status'] = value
         return result
 
     @staticmethod
