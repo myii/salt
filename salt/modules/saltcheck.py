@@ -947,8 +947,11 @@ class StateTestLoader(object):
                 #       path/saltcheck_test_location/init.tst
 
                 state_name = low_data['__sls__']
+                print('state_name: {0}'.format(state_name))
                 if state_name in processed_states:
                     copy_states = False
+                else:
+                    processed_states.append(state_name)
 
                 # process /patch/to/formula/saltcheck_test_location
                 sls_path = 'salt://{0}/{1}'.format(state_name.replace('.', '/'), self.saltcheck_test_location)
@@ -959,7 +962,6 @@ class StateTestLoader(object):
                                                               include_pat='*.tst')
 
                 if this_cache_ret:
-                    processed_states.append(state_name)
                     cached_copied_files.extend(this_cache_ret)
                 else:
                     # process /path/to/saltcheck_test_location
@@ -968,6 +970,8 @@ class StateTestLoader(object):
                     state_name = '.'.join(sls_split)
                     if state_name in processed_states:
                         copy_states = False
+                    else:
+                        processed_states.append(state_name)
                     sls_path = 'salt://{0}/{1}'.format('/'.join(sls_split), self.saltcheck_test_location)
                     if copy_states:
                         print('looking in %s to cache tests', sls_path)
@@ -975,13 +979,14 @@ class StateTestLoader(object):
                                                                   saltenv=self.saltenv,
                                                                   include_pat='*.tst')
                     if this_cache_ret:
-                        processed_states.append(state_name)
                         cached_copied_files.extend(this_cache_ret)
                     else:
                         # process /path/saltcheck_test_location
                         state_name = low_data['__sls__'].split('.')[0]
                         if state_name in processed_states:
                             copy_states = False
+                        else:
+                            processed_states.append(state_name)
                         sls_path = 'salt://{0}/{1}'.format(state_name, self.saltcheck_test_location)
                         if copy_states:
                             print('looking in %s to cache tests', sls_path)
@@ -989,21 +994,22 @@ class StateTestLoader(object):
                                                                     saltenv=self.saltenv,
                                                                     include_pat='*.tst')
                         if this_cache_ret:
-                            processed_states.append(state_name)
                             cached_copied_files.extend(this_cache_ret)
 
                 if this_cache_ret:
                     if check_all:
                         # check_all, load all tests cached
                         self.test_files.update(this_cache_ret)
-                        break
+                        # https://github.com/saltstack-formulas/cron-formula/pull/4#issuecomment-544140377
+                        # break
 
                 if salt_ssh:
                     if check_all:
                         # load all tests for this state on ssh minion
                         tst_files = [file_string for file_string in cached_copied_files if file_string.endswith('.tst')]
                         self.test_files.update(tst_files)
-                        break
+                        # https://github.com/saltstack-formulas/cron-formula/pull/4#issuecomment-544140377
+                        # break
 
                 split_sls = low_data['__sls__'].split('.')
                 sls_path_names = [
