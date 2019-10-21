@@ -622,28 +622,40 @@ class SaltCheck(object):
                                  "assertTrue", "assertFalse"]:
                 expected_return = self._cast_expected_to_returned_type(expected_return, actual_return)
             if assertion == "assertEqual":
+                assertion_desc = "=="
                 value = self.__assert_equal(expected_return, actual_return, assert_print_result)
             elif assertion == "assertNotEqual":
+                assertion_desc = "!="
                 value = self.__assert_not_equal(expected_return, actual_return, assert_print_result)
             elif assertion == "assertTrue":
+                assertion_desc = "True is"
                 value = self.__assert_true(actual_return)
             elif assertion == "assertFalse":
+                assertion_desc = "False is"
                 value = self.__assert_false(actual_return)
             elif assertion == "assertIn":
+                assertion_desc = "IN"
                 value = self.__assert_in(expected_return, actual_return, assert_print_result)
             elif assertion == "assertNotIn":
+                assertion_desc = "NOT IN"
                 value = self.__assert_not_in(expected_return, actual_return, assert_print_result)
             elif assertion == "assertGreater":
+                assertion_desc = ">"
                 value = self.__assert_greater(expected_return, actual_return)
             elif assertion == "assertGreaterEqual":
+                assertion_desc = ">="
                 value = self.__assert_greater_equal(expected_return, actual_return)
             elif assertion == "assertLess":
+                assertion_desc = "<"
                 value = self.__assert_less(expected_return, actual_return)
             elif assertion == "assertLessEqual":
+                assertion_desc = "<="
                 value = self.__assert_less_equal(expected_return, actual_return)
             elif assertion == "assertEmpty":
+                assertion_desc = "EMPTY"
                 value = self.__assert_empty(actual_return)
             elif assertion == "assertNotEmpty":
+                assertion_desc = "NOT EMPTY"
                 value = self.__assert_not_empty(actual_return)
             else:
                 value = "Fail - bad assertion"
@@ -651,15 +663,26 @@ class SaltCheck(object):
             value = "Fail - invalid test"
         end = time.time()
         result = {}
-        result['A. mod_and_func'] = mod_and_func
-        result['B. args'] = args
-        result['C. assertion'] = assertion
-        if assertion_section is not None:
-            result['D. assertion_section'] = assertion_section
-        if expected_return is not None:
-            result['E. expected'] = expected_return
-        result['F. outcome'] = actual_return
         result['duration'] = round(end - start, 4)
+        if {'mod_and_func', 'args'} <= set(locals()):
+            assertion_section_repr_title = ''
+            assertion_section_repr_value = ''
+            if assertion_section is not None:
+                assertion_section_repr_title = ' => {0}'.format('section')
+                assertion_section_repr_value = ' => {0}'.format(assertion_section)
+            result['module.function [args]{0}'.format(
+                assertion_section_repr_title
+            )] = '{0} {1}{2}'.format(
+                mod_and_func,
+                args,
+                assertion_section_repr_value,
+            )
+        if {'expected_return', 'assertion_desc', 'actual_return'} <= set(locals()):
+            result['saltcheck assertion'] = '{0}{1} {2}'.format(
+                ('' if expected_return is None else '{0} '.format(expected_return)),
+                assertion_desc,
+                actual_return,
+            )
         result['status'] = value
         return result
 
