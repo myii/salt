@@ -964,6 +964,10 @@ class StateTestLoader(object):
                 # path/to/formula/init.sls
                 #   with tests of
                 #       path/to/formula/saltcheck-tests/init.tst
+                # or if a custom saltcheck_test_location is used
+                # path/to/forumla.sls
+                #   with tests of
+                #       path/saltcheck_test_location/init.tst
 
                 state_name = low_data['__sls__']
                 print('state_name: {0}'.format(state_name))
@@ -999,6 +1003,21 @@ class StateTestLoader(object):
                                                                   include_pat='*.tst')
                     if this_cache_ret:
                         cached_copied_files.extend(this_cache_ret)
+                    else:
+                        # process /path/saltcheck_test_location
+                        state_name = low_data['__sls__'].split('.')[0]
+                        if state_name in processed_states:
+                            copy_states = False
+                        else:
+                            processed_states.append(state_name)
+                        sls_path = 'salt://{0}/{1}'.format(state_name, self.saltcheck_test_location)
+                        if copy_states:
+                            print('looking in %s to cache tests', sls_path)
+                            this_cache_ret = __salt__['cp.cache_dir'](sls_path,
+                                                                    saltenv=self.saltenv,
+                                                                    include_pat='*.tst')
+                        if this_cache_ret:
+                            cached_copied_files.extend(this_cache_ret)
 
                 if this_cache_ret:
                     if check_all:
