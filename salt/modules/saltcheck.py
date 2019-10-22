@@ -652,10 +652,10 @@ class SaltCheck(object):
                 assertion_desc = "<="
                 value = self.__assert_less_equal(expected_return, actual_return)
             elif assertion == "assertEmpty":
-                assertion_desc = "EMPTY"
+                assertion_desc = "IS EMPTY:"
                 value = self.__assert_empty(actual_return)
             elif assertion == "assertNotEmpty":
-                assertion_desc = "NOT EMPTY"
+                assertion_desc = "IS NOT EMPTY:"
                 value = self.__assert_not_empty(actual_return)
             else:
                 value = "Fail - bad assertion"
