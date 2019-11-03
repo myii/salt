@@ -634,10 +634,10 @@ class SaltCheck(object):
                 assertion_desc = "False is"
                 value = self.__assert_false(actual_return)
             elif assertion == "assertIn":
-                assertion_desc = "IN"
+                assertion_desc = "IS IN"
                 value = self.__assert_in(expected_return, actual_return, assert_print_result)
             elif assertion == "assertNotIn":
-                assertion_desc = "NOT IN"
+                assertion_desc = "IS NOT IN"
                 value = self.__assert_not_in(expected_return, actual_return, assert_print_result)
             elif assertion == "assertGreater":
                 assertion_desc = ">"
@@ -677,10 +677,14 @@ class SaltCheck(object):
                 args,
                 assertion_section_repr_value,
             )
+        assertion_desc_separator = ' '
+        if assertion_desc in ['IS IN', 'IS NOT IN']:
+            assertion_desc_separator = '\n\n'
         if {'expected_return', 'assertion_desc', 'actual_return'} <= set(locals()):
-            result['saltcheck assertion'] = '{0}{1} {2}'.format(
-                ('' if expected_return is None else '{0} '.format(expected_return)),
+            result['saltcheck assertion'] = '{0}{1}{2}{3}'.format(
+                ('' if expected_return is None else '{0}{1}'.format(expected_return, assertion_desc_separator)),
                 assertion_desc,
+                assertion_desc_separator,
                 actual_return,
             )
         result['status'] = value
